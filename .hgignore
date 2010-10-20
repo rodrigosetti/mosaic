@@ -1,0 +1,9 @@
+syntax: re
+
+(png|jpe?g|bmp|gif)$
+^img-set
+\.swp$
+\.pyc$
+^~
+~$
+
