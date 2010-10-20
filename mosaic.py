@@ -58,7 +58,7 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
     img_set = [rescale_crop(img, tile_size) for img in img_set]
 
     # calculate, for each image, the mean color vector
-    img_set_mean = [image_mean(img) for img in img_set]
+    img_set = [(img, image_mean(img)) for img in img_set]
 
     # build mosaic image
     mosaic_img = Image.new('RGB', img_target.size)
@@ -72,14 +72,12 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
                                                       tile_size[0]*(x+1),
                                                       tile_size[1]*(y+1))
                                                      ))
-            # select the best tile image from set
-            best_distance = 500.
-            best_tile = None
-            for img, mean in zip(img_set, img_set_mean):
-                dist = distance(mean, target_mean)
-                if dist < best_distance and random.random() >= noise:
-                    best_distance = dist
-                    best_tile = img
+            # sorts img_set acording to distance:
+            img_set.sort(key=lambda x: distance(x[1], target_mean))
+
+            # selects with higher probability the firsts elements
+            best_tile = img_set[ int(random.betavariate(noise + .0001, 1) * 
+                                     len(img_set)) ][0]
 
             # apply best tile to mosaic image
             mosaic_img.paste(best_tile, (tile_size[0]*x, tile_size[1]*y))
