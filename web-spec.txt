@@ -1,0 +1,38 @@
+** Request:
+
+    * JSON Interface:
+
+        {
+            'target': <image url>
+            'tiles': [ <image url>, ... ]
+            'tile_size': [<int>, <int>]
+            'zoom': <float> (optional, default: 1)
+            'noise': <float> (optional, default: 0)
+        }
+
+    * XML Interface:
+
+        <mosaic 
+            target="<image url>"
+            tile_size="<int>, <int>"
+            zoom="<float>" (optional, default: 1)
+            noise="<float>" (optional, default: 1)
+            >
+            <tile>
+                <image url>
+            </tile>
+            ...
+        </mosaic>
+
+    * Post Interface:
+
+        target: <image url>
+        tiles: [ <image url>, ... ]
+        tile_size: [<int>, <int>]
+        zoom: <float> (optional, default: 1)
+        noise: <float> (optional, default: 0)
+
+** Response:
+
+    Mosaic image data as image/jpeg content-type.
+
