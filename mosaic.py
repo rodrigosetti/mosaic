@@ -51,6 +51,8 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
     from img_set with tile_size. The images in img_set
     might be rescaled and cropped to fit tile_size.
     """
+    noise = min(noise, 1)
+
     # number of tiles to be used
     tx, ty = img_target.size[0]/tile_size[0], img_target.size[1]/tile_size[1]
 
@@ -77,7 +79,7 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
 
             # selects with higher probability the firsts elements
             for img, mean in img_set:
-                if random.random() > max(noise, .5):
+                if random.random() > noise:
                     best_tile = img
                     break
             else:
