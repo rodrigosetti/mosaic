@@ -115,17 +115,19 @@ if __name__ == "__main__":
     if namespace.zoom != 1:
         img_target = img_target.resize((int(img_target.size[0]*namespace.zoom),
                                         int(img_target.size[1]*namespace.zoom)))
-        #target_img.close()
 
     # load images
     img_set = [Image.open(img) for img in namespace.image]
-    #for img in img_set: img.close()
 
     # build mosaic
     output = mosaic(img_set, img_target, (namespace.tile_x, namespace.tile_y), 
                     namespace.noise, namespace.blend)
 
+    # closes files
+    namespace.target[0].close()
+    for img_file in namespace.image: img_file.close()
+
     # saves file
     output.save(namespace.output[0])
-    #namespace.output.close()
+    namespace.output[0].close()
 
