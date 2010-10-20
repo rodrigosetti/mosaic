@@ -111,13 +111,13 @@ if __name__ == "__main__":
     namespace = parser.parse_args()
 
     # load target image and zooms
-    img_target = Image.open(namespace.target[0])
+    img_target = Image.open(namespace.target[0]).convert("RGB")
     if namespace.zoom != 1:
         img_target = img_target.resize((int(img_target.size[0]*namespace.zoom),
                                         int(img_target.size[1]*namespace.zoom)))
 
     # load images
-    img_set = [Image.open(img) for img in namespace.image]
+    img_set = [Image.open(img).convert("RGB") for img in namespace.image]
 
     # build mosaic
     output = mosaic(img_set, img_target, (namespace.tile_x, namespace.tile_y), 
