@@ -26,8 +26,8 @@ def rescale_crop(img, size):
 def image_mean(img):
     "calculate the mean of image"
 
-    if img.size[0] == 0 or img.size[1] == 0:
-        return 0., 0., 0.
+#    if img.size[0] == 0 or img.size[1] == 0:
+#        return 0., 0., 0.
 
     rsum, gsum, bsum = 0., 0., 0.
     pixels = img.load()
@@ -76,8 +76,12 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
             img_set.sort(key=lambda x: distance(x[1], target_mean))
 
             # selects with higher probability the firsts elements
-            best_tile = img_set[ int(random.betavariate(noise + .0001, 1) * 
-                                     len(img_set)) ][0]
+            for img, mean in img_set:
+                if random.random() > max(noise, .5):
+                    best_tile = img
+                    break
+            else:
+                best_tile = random.choice(img_set)[0]
 
             # apply best tile to mosaic image
             mosaic_img.paste(best_tile, (tile_size[0]*x, tile_size[1]*y))
