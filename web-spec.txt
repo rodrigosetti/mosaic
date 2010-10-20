@@ -8,6 +8,7 @@
             'tile_size': [<int>, <int>]
             'zoom': <float> (optional, default: 1)
             'noise': <float> (optional, default: 0)
+            'blend': <float> (optional, default: 0)
         }
 
     * XML Interface:
@@ -17,6 +18,7 @@
             tile_size="<int>, <int>"
             zoom="<float>" (optional, default: 1)
             noise="<float>" (optional, default: 1)
+            blend="<float>" (optional, default: 0)
             >
             <tile>
                 <image url>
@@ -31,6 +33,7 @@
         tile_size: [<int>, <int>]
         zoom: <float> (optional, default: 1)
         noise: <float> (optional, default: 0)
+        blend: <float> (optional, default: 0)
 
 ** Response:
 

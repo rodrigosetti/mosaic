@@ -45,7 +45,7 @@ def distance(a, b):
     "Eucliean distance"
     return math.sqrt(sum([(a[i]-b[i])**2 for i in range(min(len(a),len(b)))]))
 
-def mosaic(img_set, img_target, tile_size, noise=0):
+def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
     """
     Return an image of img_target composed of images
     from img_set with tile_size. The images in img_set
@@ -61,7 +61,7 @@ def mosaic(img_set, img_target, tile_size, noise=0):
     img_set_mean = [image_mean(img) for img in img_set]
 
     # build mosaic image
-    mosaic_img = Image.new('RGB', (tx*tile_size[0], ty*tile_size[1]))
+    mosaic_img = Image.new('RGB', img_target.size)
 
     # for each tile, select the best image and compose mosaic
     for x in xrange(tx):
@@ -84,7 +84,7 @@ def mosaic(img_set, img_target, tile_size, noise=0):
             # apply best tile to mosaic image
             mosaic_img.paste(best_tile, (tile_size[0]*x, tile_size[1]*y))
 
-    return mosaic_img 
+    return Image.blend(mosaic_img, img_target, blend)
 
 if __name__ == "__main__":
 
@@ -98,6 +98,8 @@ if __name__ == "__main__":
                         help='The zoom of target image')
     parser.add_argument('-n', '--noise', nargs='?', type=float, default=0,
                         help='Noise of mosaic')
+    parser.add_argument('-b', '--blend', nargs='?', type=float, default=0,
+                        help='Blend factor with original image')
     parser.add_argument('-x', '--tile-x', nargs='?', type=int, default=24,
                         help='The width of the tile')
     parser.add_argument('-y', '--tile-y', nargs='?', type=int, default=24,
@@ -121,7 +123,7 @@ if __name__ == "__main__":
 
     # build mosaic
     output = mosaic(img_set, img_target, (namespace.tile_x, namespace.tile_y), 
-                    namespace.noise)
+                    namespace.noise, namespace.blend)
 
     # saves file
     output.save(namespace.output[0])
