@@ -26,20 +26,8 @@ def rescale_crop(img, size):
 def image_mean(img):
     "calculate the mean of image"
 
-#    if img.size[0] == 0 or img.size[1] == 0:
-#        return 0., 0., 0.
-
-    rsum, gsum, bsum = 0., 0., 0.
-    pixels = img.load()
-
-    for x in xrange(img.size[0]):
-        for y in xrange(img.size[1]):
-            rsum += pixels[x,y][0]
-            gsum += pixels[x,y][1]
-            bsum += pixels[x,y][2]
-
-    npixels = float(img.size[0] * img.size[1])
-    return rsum/npixels, gsum/npixels, bsum/npixels
+    pixels = img.resize((1,1), Image.ANTIALIAS).load()
+    return pixels[0,0][:3]
 
 def distance(a, b):
     "Eucliean distance"
