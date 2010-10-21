@@ -7,7 +7,7 @@
             'tiles': [ <image url>, ... ]
             'tile_size': [<int>, <int>]
             'zoom': <float> (optional, default: 1)
-            'noise': <float> (optional, default: 0)
+            'nearests': <int> (optional, default: 2)
             'blend': <float> (optional, default: 0)
         }
 
@@ -17,7 +17,7 @@
             target="<image url>"
             tile_size="<int>, <int>"
             zoom="<float>" (optional, default: 1)
-            noise="<float>" (optional, default: 1)
+            nearests="<int>" (optional, default: 2)
             blend="<float>" (optional, default: 0)
             >
             <tile>
@@ -32,7 +32,7 @@
         tiles: [ <image url>, ... ]
         tile_size: [<int>, <int>]
         zoom: <float> (optional, default: 1)
-        noise: <float> (optional, default: 0)
+        nearests: <int> (optional, default: 2)
         blend: <float> (optional, default: 0)
 
 ** Response:

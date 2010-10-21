@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from PIL import Image
-import math, random
+import kdtree
 
 def rescale_crop(img, size):
     "Rescale and crop image to fit in size"
@@ -31,11 +31,11 @@ def image_mean(img):
 
 def distance(pointA, pointB):
     # squared euclidean distance
-    distance = 0
+    distance = 0.
     dimensions = len(pointA) # assumes both points have the same dimensions
     for dimension in range(dimensions):
-        distance += (pointA[dimension] - pointB[dimension])**2
-        return distance
+        distance += (pointA[dimension] - pointB[dimension])**2.
+    return distance
 
 class ImgPoint(tuple):
     pass
@@ -47,22 +47,17 @@ def ImagePoint(img):
     image_point.image = img
     return image_point
 
-def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
+def mosaic(img_set, img_target, tile_size, nearest_imgs=0, blend=0):
     """
     Return an image of img_target composed of images
     from img_set with tile_size. The images in img_set
     might be rescaled and cropped to fit tile_size.
     """
-    noise = min(noise, 1)
-
     # number of tiles to be used
-    tx, ty = img_target.size[0]/tile_size[0], img_target.size[1]/tile_size[1]
+    tx, ty = img_target.size[0]/tile_size[0] + 1, img_target.size[1]/tile_size[1] + 1
 
     # transform all images in set to tile_size
     img_set = [ImagePoint(rescale_crop(img, tile_size)) for img in img_set]
-
-    # calculate, for each image, the mean color vector
-#    img_set = [(img, image_mean(img)) for img in img_set]
 
     # build mosaic image
     mosaic_img = Image.new('RGB', img_target.size)
@@ -70,22 +65,38 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
     # rescale image into each pixel as a tile
     target_pixels = img_target.resize((tx, ty), Image.ANTIALIAS).load()
 
+    # Create a KDTree of image set for tiles
+    tree = kdtree.KDTree(img_set)
+
+    # tiles tracking for alternation
+    last_tile_position = [[] for x in xrange(nearest_imgs)]
+
     # for each tile, select the best image and compose mosaic
     for x in xrange(tx):
         for y in xrange(ty):
+            # selects neigh, the n-th neighbour fartest from itself
+            fartest = 0
+            for p in xrange(nearest_imgs):
+                if not last_tile_position[p]:
+                        neigh = p
+                        break
+                else:
+                    # find the closest distance
+                    dist = distance((x,y),min(last_tile_position[p],
+                                              key=lambda e: distance((x,y), e)))
+
+                    if dist > fartest:
+                        fartest = dist
+                        neigh = p
+
+            # sets current position as last
+            last_tile_position[neigh].append( (x,y) )
+
             # calculate target's tile mean
             target_mean = target_pixels[x,y][:3]
 
             # sorts img_set acording to distance:
-            img_set.sort(key=lambda e: distance(e, target_mean))
-
-            # selects with higher probability the firsts elements
-            for imgpoint in img_set:
-                if random.random() > noise:
-                    best_tile = imgpoint.image
-                    break
-            else:
-                best_tile = random.choice(img_set).image
+            best_tile = tree.query( target_mean, t=nearest_imgs)[neigh].image
 
             # apply best tile to mosaic image
             mosaic_img.paste(best_tile, (tile_size[0]*x, tile_size[1]*y))
@@ -102,8 +113,8 @@ if __name__ == "__main__":
                         help='The image to build mosaic on')
     parser.add_argument('-z', '--zoom', nargs='?', type=float, default=1,
                         help='The zoom of target image')
-    parser.add_argument('-n', '--noise', nargs='?', type=float, default=0,
-                        help='Noise of mosaic')
+    parser.add_argument('-n', '--nearests', nargs='?', type=int, default=2,
+                        help='Number of nearest images to set in each tile')
     parser.add_argument('-b', '--blend', nargs='?', type=float, default=0,
                         help='Blend factor with original image')
     parser.add_argument('-x', '--tile-x', nargs='?', type=int, default=24,
@@ -127,7 +138,7 @@ if __name__ == "__main__":
 
     # build mosaic
     output = mosaic(img_set, img_target, (namespace.tile_x, namespace.tile_y), 
-                    namespace.noise, namespace.blend)
+                    namespace.nearests, namespace.blend)
 
     # closes files
     namespace.target[0].close()
