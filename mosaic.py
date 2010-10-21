@@ -29,9 +29,23 @@ def image_mean(img):
     pixels = img.resize((1,1), Image.ANTIALIAS).load()
     return pixels[0,0][:3]
 
-def distance(a, b):
-    "Eucliean distance"
-    return math.sqrt(sum([(a[i]-b[i])**2 for i in range(min(len(a),len(b)))]))
+def distance(pointA, pointB):
+    # squared euclidean distance
+    distance = 0
+    dimensions = len(pointA) # assumes both points have the same dimensions
+    for dimension in range(dimensions):
+        distance += (pointA[dimension] - pointB[dimension])**2
+        return distance
+
+class ImgPoint(tuple):
+    pass
+
+def ImagePoint(img):
+
+    pixel = img.resize((1,1), Image.ANTIALIAS).load()[0,0][:3] 
+    image_point = ImgPoint( pixel )
+    image_point.image = img
+    return image_point
 
 def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
     """
@@ -45,33 +59,33 @@ def mosaic(img_set, img_target, tile_size, noise=0, blend=0):
     tx, ty = img_target.size[0]/tile_size[0], img_target.size[1]/tile_size[1]
 
     # transform all images in set to tile_size
-    img_set = [rescale_crop(img, tile_size) for img in img_set]
+    img_set = [ImagePoint(rescale_crop(img, tile_size)) for img in img_set]
 
     # calculate, for each image, the mean color vector
-    img_set = [(img, image_mean(img)) for img in img_set]
+#    img_set = [(img, image_mean(img)) for img in img_set]
 
     # build mosaic image
     mosaic_img = Image.new('RGB', img_target.size)
+
+    # rescale image into each pixel as a tile
+    target_pixels = img_target.resize((tx, ty), Image.ANTIALIAS).load()
 
     # for each tile, select the best image and compose mosaic
     for x in xrange(tx):
         for y in xrange(ty):
             # calculate target's tile mean
-            target_mean = image_mean(img_target.crop((tile_size[0]*x, 
-                                                      tile_size[1]*y,
-                                                      tile_size[0]*(x+1),
-                                                      tile_size[1]*(y+1))
-                                                     ))
+            target_mean = target_pixels[x,y][:3]
+
             # sorts img_set acording to distance:
-            img_set.sort(key=lambda x: distance(x[1], target_mean))
+            img_set.sort(key=lambda e: distance(e, target_mean))
 
             # selects with higher probability the firsts elements
-            for img, mean in img_set:
+            for imgpoint in img_set:
                 if random.random() > noise:
-                    best_tile = img
+                    best_tile = imgpoint.image
                     break
             else:
-                best_tile = random.choice(img_set)[0]
+                best_tile = random.choice(img_set).image
 
             # apply best tile to mosaic image
             mosaic_img.paste(best_tile, (tile_size[0]*x, tile_size[1]*y))
