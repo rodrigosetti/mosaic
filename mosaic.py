@@ -108,13 +108,15 @@ if __name__ == "__main__":
     import argparse
 
     # Read command line arguments
-    parser = argparse.ArgumentParser(description='Create a mosaic')
-    parser.add_argument('-t', '--target', nargs=1, type=file, 
-                        help='The image to build mosaic on')
+    parser = argparse.ArgumentParser(description='Create a mosaic, i.e. a composition of smaller images building a bigger image. For each subsection of the bigger image(target) a smaller image(tile) which bests match color will be used.',
+                                     epilog='For reporting bugs or other contributions please contact: <rodrigosetti@gmail.com>')
+    parser.add_argument('-t', '--target', nargs=1, type=file,
+                        metavar="<target image>",
+                        help='The bigger image to build mosaic on')
     parser.add_argument('-z', '--zoom', nargs='?', type=float, default=1,
                         help='The zoom of target image')
     parser.add_argument('-n', '--nearests', nargs='?', type=int, default=2,
-                        help='Number of nearest images to set in each tile')
+                        help='Number of nearest images to set in each tile. i.e. uses the nth bests matches to compose.')
     parser.add_argument('-b', '--blend', nargs='?', type=float, default=0,
                         help='Blend factor with original image')
     parser.add_argument('-x', '--tile-x', nargs='?', type=int, default=24,
@@ -122,9 +124,10 @@ if __name__ == "__main__":
     parser.add_argument('-y', '--tile-y', nargs='?', type=int, default=24,
                         help='The height of the tile')
     parser.add_argument('-o', '--output', nargs=1, type=argparse.FileType('w'),
-                        help='The output create mosaic image file')
-    parser.add_argument('image', nargs='+', type=file, 
-                        help='An image to be used in building the mosaic')
+                        metavar="<output image>",
+                        help='The output createt mosaic image file')
+    parser.add_argument('image', nargs='+', type=file, metavar="<tile image>",
+                        help='An image to be used in building the mosaic, you must provide lots of it for a better effect. Tip: use shell glob syntax, i.e. images/*.jpg')
     namespace = parser.parse_args()
 
     # load target image and zooms
