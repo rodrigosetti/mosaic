@@ -1,0 +1,7 @@
+img-set/
+*.swp
+*.pyc
+*.orig
+*~
+~*
+
