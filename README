@@ -1,0 +1,10 @@
+Mosaic
+------
+
+A Python script to create a mosaic from smaller images building a larger image
+using python's PIL. Currently it uses KDTree to sort tiles according to RGB
+mean and selects n-nearest-neighbors for each section of the larger image from
+the tree. It uses a tiling algorithm which renders a pattern of images with
+translational symmetry. The plan is to add multi-threading support as the
+mosaic composition problem is essentially parallelizable. 
+
